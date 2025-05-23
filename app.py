@@ -1,3 +1,42 @@
+import streamlit as st
+from datetime import date
+import json
+import os
+
+st.set_page_config(page_title="Gestão de Rebanho", layout="centered")
+
+# Arquivos para salvar os dados localmente (no servidor)
+ARQUIVO_REBANHO = "rebanho.json"
+ARQUIVO_PASTOS = "pastos.json"
+
+# Função para carregar dados de JSON
+def carregar_dados(arquivo):
+    if os.path.exists(arquivo):
+        with open(arquivo, "r", encoding="utf-8") as f:
+            return json.load(f)
+    else:
+        return []
+
+# Função para salvar dados em JSON
+def salvar_dados(arquivo, dados):
+    with open(arquivo, "w", encoding="utf-8") as f:
+        json.dump(dados, f, ensure_ascii=False, indent=4)
+
+# Carregar dados na inicialização
+rebanho = carregar_dados(ARQUIVO_REBANHO)
+pastos = carregar_dados(ARQUIVO_PASTOS)
+
+# Menu lateral
+menu = st.sidebar.selectbox("Menu", [
+    "Cadastrar Animal",
+    "Cadastrar Pasto",
+    "Visualizar Rebanho",
+    "Visualizar Pastos",
+    "Ganho de Peso",
+    "Editar/Remover Animal",
+    "Editar/Remover Pasto"
+])
+
 # --- Cadastrar Animal ---
 if menu == "Cadastrar Animal":
     st.subheader("📋 Cadastro de Animal")
@@ -38,7 +77,8 @@ elif menu == "Cadastrar Pasto":
             salvar_dados(ARQUIVO_PASTOS, pastos)
             st.success("✅ Pasto cadastrado com sucesso!")
         else:
-            st.warning("⚠ Preencha todos os campos corretamente.") 
+            st.warning("⚠ Preencha todos os campos corretamente.")
+
 # --- Visualizar Rebanho ---
 elif menu == "Visualizar Rebanho":
     st.subheader("📑 Lista de Animais Cadastrados")
@@ -66,6 +106,7 @@ elif menu == "Visualizar Pastos":
             """)
     else:
         st.info("Nenhum pasto cadastrado.")
+
 # --- Ganho de Peso ---
 elif menu == "Ganho de Peso":
     st.subheader("📈 Cálculo de Ganho de Peso")
@@ -94,27 +135,28 @@ elif menu == "Ganho de Peso":
             - Ganho Total: {ganho_total:.2f} kg  
             - Ganho Médio Diário: {ganho_medio:.2f} kg/dia
             """)
+
 # --- Editar/Remover Animal ---
 elif menu == "Editar/Remover Animal":
     st.subheader("✏️ Editar ou Remover Animal")
-    
+
     if not rebanho:
         st.info("Nenhum animal cadastrado para editar ou remover.")
     else:
         nomes_animais = [animal["nome"] for animal in rebanho]
         selecionado = st.selectbox("Selecione o animal", nomes_animais)
-        
+
         if selecionado:
             index = nomes_animais.index(selecionado)
             animal = rebanho[index]
-            
+
             # Campos para edição
             novo_nome = st.text_input("Nome", animal["nome"])
             nova_raca = st.text_input("Raça", animal["raca"])
             nova_idade = st.number_input("Idade (anos)", min_value=0, value=animal["idade"], step=1)
             novo_peso = st.number_input("Peso (kg)", min_value=0.0, value=animal["peso"], step=0.1)
             novo_sexo = st.selectbox("Sexo", ["Macho", "Fêmea"], index=["Macho", "Fêmea"].index(animal["sexo"]))
-            
+
             if st.button("Salvar Alterações"):
                 rebanho[index] = {
                     "nome": novo_nome,
@@ -125,7 +167,7 @@ elif menu == "Editar/Remover Animal":
                 }
                 salvar_dados(ARQUIVO_REBANHO, rebanho)
                 st.success("✅ Animal atualizado com sucesso!")
-            
+
             if st.button("Remover Animal"):
                 rebanho.pop(index)
                 salvar_dados(ARQUIVO_REBANHO, rebanho)
@@ -134,22 +176,22 @@ elif menu == "Editar/Remover Animal":
 # --- Editar/Remover Pasto ---
 elif menu == "Editar/Remover Pasto":
     st.subheader("✏️ Editar ou Remover Pasto")
-    
+
     if not pastos:
         st.info("Nenhum pasto cadastrado para editar ou remover.")
     else:
         nomes_pastos = [pasto["nome"] for pasto in pastos]
         selecionado = st.selectbox("Selecione o pasto", nomes_pastos)
-        
+
         if selecionado:
             index = nomes_pastos.index(selecionado)
             pasto = pastos[index]
-            
+
             # Campos para edição
             novo_nome = st.text_input("Nome", pasto["nome"])
             nova_localizacao = st.text_input("Localização", pasto["localizacao"])
             novo_tamanho = st.number_input("Tamanho (hectares)", min_value=0.1, value=pasto["tamanho"], step=0.1)
-            
+
             if st.button("Salvar Alterações"):
                 pastos[index] = {
                     "nome": novo_nome,
@@ -158,7 +200,7 @@ elif menu == "Editar/Remover Pasto":
                 }
                 salvar_dados(ARQUIVO_PASTOS, pastos)
                 st.success("✅ Pasto atualizado com sucesso!")
-            
+
             if st.button("Remover Pasto"):
                 pastos.pop(index)
                 salvar_dados(ARQUIVO_PASTOS, pastos)
