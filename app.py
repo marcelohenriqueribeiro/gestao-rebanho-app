@@ -38,4 +38,31 @@ elif menu == "Cadastrar Pasto":
             salvar_dados(ARQUIVO_PASTOS, pastos)
             st.success("✅ Pasto cadastrado com sucesso!")
         else:
-            st.warning("⚠ Preencha todos os campos corretamente.")
+            st.warning("⚠ Preencha todos os campos corretamente.") 
+# --- Visualizar Rebanho ---
+elif menu == "Visualizar Rebanho":
+    st.subheader("📑 Lista de Animais Cadastrados")
+    if rebanho:
+        for i, animal in enumerate(rebanho, start=1):
+            st.markdown(f"""
+            **{i}.** 🐄 **Nome:** {animal['nome']}  
+            - Raça: {animal['raca']}  
+            - Idade: {animal['idade']} anos  
+            - Sexo: {animal['sexo']}  
+            - Peso: {animal['peso']} kg  
+            """)
+    else:
+        st.info("Nenhum animal cadastrado.")
+
+# --- Visualizar Pastos ---
+elif menu == "Visualizar Pastos":
+    st.subheader("📑 Lista de Pastos Cadastrados")
+    if pastos:
+        for i, pasto in enumerate(pastos, start=1):
+            st.markdown(f"""
+            **{i}.** 🌿 **Nome:** {pasto['nome']}  
+            - Localização: {pasto['localizacao']}  
+            - Tamanho: {pasto['tamanho']} hectares  
+            """)
+    else:
+        st.info("Nenhum pasto cadastrado.")
