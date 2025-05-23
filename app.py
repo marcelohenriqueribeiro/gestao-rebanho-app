@@ -66,3 +66,100 @@ elif menu == "Visualizar Pastos":
             """)
     else:
         st.info("Nenhum pasto cadastrado.")
+# --- Ganho de Peso ---
+elif menu == "Ganho de Peso":
+    st.subheader("📈 Cálculo de Ganho de Peso")
+
+    nome_animal = st.text_input("Nome do Animal")
+    data_entrada = st.date_input("Data de Entrada", value=date.today())
+    data_saida = st.date_input("Data de Saída", value=date.today())
+    peso_inicial = st.number_input("Peso Inicial (kg)", min_value=0.0, step=0.1)
+    peso_final = st.number_input("Peso Final (kg)", min_value=0.0, step=0.1)
+
+    if st.button("Calcular Ganho"):
+        if nome_animal.strip() == "":
+            st.warning("⚠ Informe o nome do animal.")
+        elif data_saida <= data_entrada:
+            st.warning("⚠ A data de saída deve ser posterior à data de entrada.")
+        elif peso_final <= peso_inicial:
+            st.warning("⚠ O peso final deve ser maior que o peso inicial.")
+        else:
+            dias = (data_saida - data_entrada).days
+            ganho_total = peso_final - peso_inicial
+            ganho_medio = ganho_total / dias if dias > 0 else 0
+
+            st.success(f"""
+            📊 Resultado para **{nome_animal}**:
+            - Dias: {dias}  
+            - Ganho Total: {ganho_total:.2f} kg  
+            - Ganho Médio Diário: {ganho_medio:.2f} kg/dia
+            """)
+# --- Editar/Remover Animal ---
+elif menu == "Editar/Remover Animal":
+    st.subheader("✏️ Editar ou Remover Animal")
+    
+    if not rebanho:
+        st.info("Nenhum animal cadastrado para editar ou remover.")
+    else:
+        nomes_animais = [animal["nome"] for animal in rebanho]
+        selecionado = st.selectbox("Selecione o animal", nomes_animais)
+        
+        if selecionado:
+            index = nomes_animais.index(selecionado)
+            animal = rebanho[index]
+            
+            # Campos para edição
+            novo_nome = st.text_input("Nome", animal["nome"])
+            nova_raca = st.text_input("Raça", animal["raca"])
+            nova_idade = st.number_input("Idade (anos)", min_value=0, value=animal["idade"], step=1)
+            novo_peso = st.number_input("Peso (kg)", min_value=0.0, value=animal["peso"], step=0.1)
+            novo_sexo = st.selectbox("Sexo", ["Macho", "Fêmea"], index=["Macho", "Fêmea"].index(animal["sexo"]))
+            
+            if st.button("Salvar Alterações"):
+                rebanho[index] = {
+                    "nome": novo_nome,
+                    "raca": nova_raca,
+                    "idade": nova_idade,
+                    "peso": novo_peso,
+                    "sexo": novo_sexo
+                }
+                salvar_dados(ARQUIVO_REBANHO, rebanho)
+                st.success("✅ Animal atualizado com sucesso!")
+            
+            if st.button("Remover Animal"):
+                rebanho.pop(index)
+                salvar_dados(ARQUIVO_REBANHO, rebanho)
+                st.success("❌ Animal removido com sucesso!")
+
+# --- Editar/Remover Pasto ---
+elif menu == "Editar/Remover Pasto":
+    st.subheader("✏️ Editar ou Remover Pasto")
+    
+    if not pastos:
+        st.info("Nenhum pasto cadastrado para editar ou remover.")
+    else:
+        nomes_pastos = [pasto["nome"] for pasto in pastos]
+        selecionado = st.selectbox("Selecione o pasto", nomes_pastos)
+        
+        if selecionado:
+            index = nomes_pastos.index(selecionado)
+            pasto = pastos[index]
+            
+            # Campos para edição
+            novo_nome = st.text_input("Nome", pasto["nome"])
+            nova_localizacao = st.text_input("Localização", pasto["localizacao"])
+            novo_tamanho = st.number_input("Tamanho (hectares)", min_value=0.1, value=pasto["tamanho"], step=0.1)
+            
+            if st.button("Salvar Alterações"):
+                pastos[index] = {
+                    "nome": novo_nome,
+                    "localizacao": nova_localizacao,
+                    "tamanho": novo_tamanho
+                }
+                salvar_dados(ARQUIVO_PASTOS, pastos)
+                st.success("✅ Pasto atualizado com sucesso!")
+            
+            if st.button("Remover Pasto"):
+                pastos.pop(index)
+                salvar_dados(ARQUIVO_PASTOS, pastos)
+                st.success("❌ Pasto removido com sucesso!")
